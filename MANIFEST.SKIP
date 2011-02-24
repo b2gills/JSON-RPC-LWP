@@ -1,0 +1,6 @@
+dist.ini
+README.md
+MANIFEST.SKIP
+
+^JSON-RPC-LWP
+^[^\\/]+[.]pl$
