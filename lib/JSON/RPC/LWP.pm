@@ -69,7 +69,7 @@ sub call{
 
   my $params;
   if( @rest ){
-    if( @rest == 1 ){
+    if( @rest == 1 and ref $rest[0] ){
       ($params) = @rest;
     }elsif( not @rest % 2 ){
       if( substr($rest[0],0,1) eq '-' ){
@@ -81,12 +81,9 @@ sub call{
         }
         $params = \%rest;
       }
-    }else{
-      $params = \@rest;
     }
-  }else{
-    $params = [];
   }
+  $params = \@rest unless ref $params;
 
   my $request = $self->marshal->call_to_request(
     JSON::RPC::Common::Procedure::Call->inflate(
