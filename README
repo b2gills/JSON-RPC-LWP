@@ -1,0 +1,76 @@
+NAME
+    JSON::RPC::LWP - Use any version of JSON RPC over any libwww supported
+    transport protocols.
+
+VERSION
+    version 0.001
+
+SYNOPSIS
+        use JSON::RPC::LWP;
+
+        my $rpc = JSON::RPC::LWP->new;
+        $rpc->from('name@address.com');
+        $rpc->agent('JSON::RPC::LWP Example');
+
+        my $login = $rpc->call(
+          'https://us1.lacunaexpanse.com/empire', # uri
+          'login', # service
+          [$empire,$password,$api_key] # JSON container
+        );
+
+METHODS
+    "call( $uri, $method )"
+    "call( $uri, $method, {...} )"
+    "call( $uri, $method, [...] )"
+    "call( $uri, $method, -key => 'value', ... )"
+    "call( $uri, $method, param1, param2, ... )"
+        Initiate a JSON::RPC::Common::Procedure::Call
+
+        Uses LWP::UserAgent for transport.
+
+        Then returns a JSON::RPC::Common::Procedure::Return
+
+    "count"
+        How many times "call" was called
+
+    "reset_count"
+        Resets "count".
+
+    "version"
+        The JSON RPC version to use. one of 1.0 1.1 or 2.0
+
+    "marshal"
+        An instance of JSON::RPC::Common::Marshal::HTTP. This is used to
+        convert from a JSON::RPC::Common::Procedure::Call to a
+        HTTP::Request, and from an HTTP::Response to a
+        JSON::RPC::Common::Procedure::Return.
+
+        Methods delegated to "marshal"
+
+        "prefer_get"
+        "rest_style_methods"
+        "prefer_encoded_get"
+
+    "ua"
+        An instance of LWP::UserAgent. This is used for the transport layer.
+
+        Methods delegated to "ua"
+
+        "agent"
+        "_agent"
+        "timeout"
+        "proxy"
+        "no_proxy"
+        "env_proxy"
+        "from"
+        "credentials"
+
+AUTHOR
+    Brad Gilbert <b2gills@gmail.com>
+
+COPYRIGHT AND LICENSE
+    This software is copyright (c) 2011 by Brad Gilbert.
+
+    This is free software; you can redistribute it and/or modify it under
+    the same terms as the Perl 5 programming language system itself.
+

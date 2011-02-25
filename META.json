@@ -1,0 +1,68 @@
+{
+   "abstract" : "Use any version of JSON RPC over any libwww supported transport protocols.",
+   "author" : [
+      "Brad Gilbert <b2gills@gmail.com>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Dist::Zilla version 4.200004, CPAN::Meta::Converter version 2.110540",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "JSON-RPC-LWP",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "xt"
+      ]
+   },
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "Module::Build" : "0.3601"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0.3601"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "JSON::RPC::Common" : 0,
+            "LWP::UserAgent" : 0,
+            "Moose" : 0,
+            "URI" : 0,
+            "namespace::clean" : 0
+         }
+      },
+      "test" : {
+         "requires" : {
+            "FindBin" : 0,
+            "Test::More" : 0
+         }
+      }
+   },
+   "provides" : {
+      "JSON::RPC::LWP" : {
+         "file" : "lib/JSON/RPC/LWP.pm",
+         "version" : "0.001"
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "http://github.com/b2gills/JSON-RPC-LWP/issues"
+      },
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/b2gills/JSON-RPC-LWP.git",
+         "web" : "http://github.com/b2gills/JSON-RPC-LWP"
+      }
+   },
+   "version" : "0.001"
+}
+

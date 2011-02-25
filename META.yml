@@ -1,0 +1,35 @@
+---
+abstract: 'Use any version of JSON RPC over any libwww supported transport protocols.'
+author:
+  - 'Brad Gilbert <b2gills@gmail.com>'
+build_requires:
+  FindBin: 0
+  Module::Build: 0.3601
+  Test::More: 0
+configure_requires:
+  Module::Build: 0.3601
+dynamic_config: 0
+generated_by: 'Dist::Zilla version 4.200004, CPAN::Meta::Converter version 2.110540'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: JSON-RPC-LWP
+no_index:
+  directory:
+    - t
+    - xt
+provides:
+  JSON::RPC::LWP:
+    file: lib/JSON/RPC/LWP.pm
+    version: 0.001
+requires:
+  JSON::RPC::Common: 0
+  LWP::UserAgent: 0
+  Moose: 0
+  URI: 0
+  namespace::clean: 0
+resources:
+  bugtracker: http://github.com/b2gills/JSON-RPC-LWP/issues
+  repository: git://github.com/b2gills/JSON-RPC-LWP.git
+version: 0.001
