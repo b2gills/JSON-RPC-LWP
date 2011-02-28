@@ -22,6 +22,7 @@ qq[{"jsonrpc":"2.0","error":{"data":null,"message":"error","code":101},"id":1}\n
 my $fine_text = qq[{"jsonrpc":"2.0","id":2,"result":"fine"}\n];
 
 SKIP: {
+  note 'Checking ->call with an error response';
   open my $fh, '>', $error_file
     or skip "error creating $error_file", 1;
 
@@ -32,9 +33,10 @@ SKIP: {
     or skip "error closing $error_file", 1;
 
   my $error = $rpc->call("file://${FindBin::Bin}/error.json",'test');
-  ok $error->has_error, 'test for returned errors';
+  ok $error->has_error, 'test for returned errors from ->call';
 }
 SKIP: {
+  note 'Checking ->call with a regular response';
   open my $fh, '>', $fine_file
     or skip "error creating $fine_file", 1;
 
@@ -45,5 +47,5 @@ SKIP: {
     or skip "error closing $fine_file", 1;
 
   my $fine = $rpc->call("file://${FindBin::Bin}/fine.json",'test');
-  ok $fine->has_result, 'test for normal return value';
+  ok $fine->has_result, 'test for normal return value from ->call';
 }
