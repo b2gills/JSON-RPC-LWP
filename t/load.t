@@ -31,9 +31,8 @@ SKIP: {
   close $err_fh
     or skip "error closing $error_file", 1;
 
-my $error = $rpc->call("file://${FindBin::Bin}/error.json",'test');
-ok $error->has_error, 'test for returned errors';
-
+  my $error = $rpc->call("file://${FindBin::Bin}/error.json",'test');
+  ok $error->has_error, 'test for returned errors';
 }
 SKIP: {
   open my $err_fh, '>', $fine_file
@@ -45,7 +44,6 @@ SKIP: {
   close $err_fh
     or skip "error closing $fine_file", 1;
 
-my $fine = $rpc->call("file://${FindBin::Bin}/fine.json",'test');
-ok $fine->has_result, 'test for normal return value';
-
+  my $fine = $rpc->call("file://${FindBin::Bin}/fine.json",'test');
+  ok $fine->has_result, 'test for normal return value';
 }
