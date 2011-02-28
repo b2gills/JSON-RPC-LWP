@@ -3,7 +3,7 @@ NAME
     transport protocols.
 
 VERSION
-    version 0.001
+    version 0.002
 
 SYNOPSIS
         use JSON::RPC::LWP;
@@ -22,13 +22,28 @@ METHODS
     "call( $uri, $method )"
     "call( $uri, $method, {...} )"
     "call( $uri, $method, [...] )"
-    "call( $uri, $method, -key => 'value', ... )"
     "call( $uri, $method, param1, param2, ... )"
         Initiate a JSON::RPC::Common::Procedure::Call
 
         Uses LWP::UserAgent for transport.
 
         Then returns a JSON::RPC::Common::Procedure::Return
+
+    "notify( $uri, $method )"
+    "notify( $uri, $method, {...} )"
+    "notify( $uri, $method, [...] )"
+    "notify( $uri, $method, param1, param2, ... )"
+        Initiate a JSON::RPC::Common::Procedure::Call
+
+        Uses LWP::UserAgent for transport.
+
+        Basically this is the same as a call, except without the "id" key,
+        and doesn't expect a JSON RPC result.
+
+        Returns the HTTP::Response from "ua".
+
+        To check for an error use the "is_error" method of the returned
+        response object.
 
     "count"
         How many times "call" was called

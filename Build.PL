@@ -7,6 +7,7 @@ use Module::Build 0.3601;
 
 my %module_build_args = (
   'build_requires' => {
+    'File::Spec' => '0',
     'FindBin' => '0',
     'Module::Build' => '0.3601',
     'Test::More' => '0'
@@ -19,7 +20,7 @@ my %module_build_args = (
     'Brad Gilbert <b2gills@gmail.com>'
   ],
   'dist_name' => 'JSON-RPC-LWP',
-  'dist_version' => '0.001',
+  'dist_version' => '0.002',
   'license' => 'perl',
   'module_name' => 'JSON::RPC::LWP',
   'recommends' => {},

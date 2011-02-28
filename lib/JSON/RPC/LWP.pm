@@ -1,6 +1,6 @@
 package JSON::RPC::LWP;
 BEGIN {
-  $JSON::RPC::LWP::VERSION = '0.001';
+  $JSON::RPC::LWP::VERSION = '0.002';
 }
 use URI;
 use LWP::UserAgent;
@@ -58,6 +58,7 @@ has version => (
   is => 'rw',
   isa => 'Num',
   default => '2.0',
+  # should probably replace this trigger with a subtype
   trigger => sub{
     my($self,$new,$old) = @_;
     $new = 1 if $new < 1;
@@ -71,22 +72,11 @@ sub call{
   $uri = URI->new($uri) unless blessed $uri;
 
   my $params;
-  if( @rest ){
-    if( @rest == 1 and ref $rest[0] ){
-      ($params) = @rest;
-    }elsif( not @rest % 2 ){
-      if( substr($rest[0],0,1) eq '-' ){
-        my %rest;
-        while( @rest ){
-          my($k,$v) = splice @rest,0,2;
-          $k =~ s/\A-//;
-          $rest{$k} = $v;
-        }
-        $params = \%rest;
-      }
-    }
+  if( @rest == 1 and ref $rest[0] ){
+    ($params) = @rest;
+  }else{
+    $params = \@rest;
   }
-  $params = \@rest unless ref $params;
 
   my $request = $self->marshal->call_to_request(
     JSON::RPC::Common::Procedure::Call->inflate(
@@ -103,6 +93,31 @@ sub call{
   return $result;
 }
 
+sub notify{
+  my($self,$uri,$method,@rest) = @_;
+
+  $uri = URI->new($uri) unless blessed $uri;
+
+  my $params;
+  if( @rest == 1 and ref $rest[0] ){
+    $params = $rest[0];
+  }else{
+    $params = \@rest;
+  }
+
+  my $request = $self->marshal->call_to_request(
+    JSON::RPC::Common::Procedure::Call->inflate(
+      jsonrpc => $self->version,
+      method  => $method,
+      params  => $params,
+    ),
+    uri => $uri,
+  );
+  my $response = $self->ua->request($request);
+
+  return $response;
+}
+
 no Moose;
 __PACKAGE__->meta->make_immutable;
 1;
@@ -117,7 +132,7 @@ JSON::RPC::LWP - Use any version of JSON RPC over any libwww supported transport
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 SYNOPSIS
 
@@ -143,8 +158,6 @@ version 0.001
 
 =item C<< call( $uri, $method, [...] ) >>
 
-=item C<< call( $uri, $method, -key => 'value', ... ) >>
-
 =item C<< call( $uri, $method, param1, param2, ... ) >>
 
 Initiate a L<JSON::RPC::Common::Procedure::Call>
@@ -152,6 +165,26 @@ Initiate a L<JSON::RPC::Common::Procedure::Call>
 Uses L<LWP::UserAgent> for transport.
 
 Then returns a L<JSON::RPC::Common::Procedure::Return>
+
+=item C<< notify( $uri, $method ) >>
+
+=item C<< notify( $uri, $method, {...} ) >>
+
+=item C<< notify( $uri, $method, [...] ) >>
+
+=item C<< notify( $uri, $method, param1, param2, ... ) >>
+
+Initiate a L<JSON::RPC::Common::Procedure::Call>
+
+Uses L<LWP::UserAgent> for transport.
+
+Basically this is the same as a call, except without the C<id> key,
+and doesn't expect a JSON RPC result.
+
+Returns the L<HTTP::Response> from L<C<ua>|LWP::UserAgent>.
+
+To check for an error use the C<is_error> method of the returned
+response object.
 
 =item C<count>
 

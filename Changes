@@ -1,3 +1,9 @@
+0.002     2011-02-28
+
+  - Hopefully fixed minor error in test file t/load.t
+  - Aded notify method to JSON::RPC::LWP
+  - Removed complicated -key => param interface to call method
+
 0.001     2011-02-25
 
   - Initial release
