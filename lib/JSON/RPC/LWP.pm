@@ -1,5 +1,5 @@
 package JSON::RPC::LWP;
-use URI;
+use URI 1.58;
 use LWP::UserAgent;
 use JSON::RPC::Common;
 use JSON::RPC::Common::Marshal::HTTP; # uses Moose
