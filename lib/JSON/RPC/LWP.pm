@@ -1,8 +1,8 @@
 package JSON::RPC::LWP;
 BEGIN {
-  $JSON::RPC::LWP::VERSION = '0.002';
+  $JSON::RPC::LWP::VERSION = '0.003';
 }
-use URI;
+use URI 1.58;
 use LWP::UserAgent;
 use JSON::RPC::Common;
 use JSON::RPC::Common::Marshal::HTTP; # uses Moose
@@ -132,7 +132,7 @@ JSON::RPC::LWP - Use any version of JSON RPC over any libwww supported transport
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 SYNOPSIS
 

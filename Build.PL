@@ -20,7 +20,7 @@ my %module_build_args = (
     'Brad Gilbert <b2gills@gmail.com>'
   ],
   'dist_name' => 'JSON-RPC-LWP',
-  'dist_version' => '0.002',
+  'dist_version' => '0.003',
   'license' => 'perl',
   'module_name' => 'JSON::RPC::LWP',
   'recommends' => {},
@@ -29,7 +29,7 @@ my %module_build_args = (
     'JSON::RPC::Common' => '0',
     'LWP::UserAgent' => '0',
     'Moose' => '0',
-    'URI' => '0',
+    'URI' => '1.58',
     'namespace::clean' => '0'
   },
   'script_files' => []

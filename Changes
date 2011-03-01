@@ -1,3 +1,8 @@
+0.003     2011-03-01
+
+  - Force use of a newer URI module
+    Tests failed when using URI v1.54 or earlier
+
 0.002     2011-02-28
 
   - Hopefully fixed minor error in test file t/load.t
