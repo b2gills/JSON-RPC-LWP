@@ -76,6 +76,7 @@ has count => (
   is => 'ro',
   isa => 'Int',
   default => 0,
+  init_arg => undef,
 );
 sub reset_count{
   $_[0]->{count} = 0;
