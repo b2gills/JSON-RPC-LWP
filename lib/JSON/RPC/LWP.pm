@@ -4,6 +4,16 @@ use LWP::UserAgent;
 use JSON::RPC::Common;
 use JSON::RPC::Common::Marshal::HTTP; # uses Moose
 
+use Moose::Util::TypeConstraints;
+
+subtype 'JSON.RPC.Version'
+  => as 'Num'
+  => where {
+    $_ == 1.0 ||
+    $_ == 1.1 ||
+    $_ == 2.0
+};
+
 use namespace::clean;
 use Moose;
 
@@ -53,14 +63,8 @@ sub reset_count{
 
 has version => (
   is => 'rw',
-  isa => 'Num',
+  isa => 'JSON.RPC.Version',
   default => '2.0',
-  # should probably replace this trigger with a subtype
-  trigger => sub{
-    my($self,$new,$old) = @_;
-    $new = 1 if $new < 1;
-    $self->{version} = sprintf '%3.1f', $new;
-  },
 );
 
 sub call{
