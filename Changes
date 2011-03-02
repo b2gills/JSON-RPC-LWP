@@ -1,3 +1,8 @@
+0.004     2011-03-02
+
+  - Improved checking for version attribute
+  - Allow setting of inherited attributes, in constructor
+
 0.003     2011-03-01
 
   - Force use of a newer URI module
@@ -6,7 +11,7 @@
 0.002     2011-02-28
 
   - Hopefully fixed minor error in test file t/load.t
-  - Aded notify method to JSON::RPC::LWP
+  - Added notify method to JSON::RPC::LWP
   - Removed complicated -key => param interface to call method
 
 0.001     2011-02-25

@@ -7,6 +7,7 @@ build_requires:
   FindBin: 0
   Module::Build: 0.3601
   Test::More: 0
+  Test::Warn: 0
 configure_requires:
   Module::Build: 0.3601
 dynamic_config: 0
@@ -23,14 +24,15 @@ no_index:
 provides:
   JSON::RPC::LWP:
     file: lib/JSON/RPC/LWP.pm
-    version: 0.003
+    version: 0.004
 requires:
   JSON::RPC::Common: 0
   LWP::UserAgent: 0
   Moose: 0
+  Moose::Util::TypeConstraints: 0
   URI: 1.58
   namespace::clean: 0
 resources:
   bugtracker: http://github.com/b2gills/JSON-RPC-LWP/issues
   repository: git://github.com/b2gills/JSON-RPC-LWP.git
-version: 0.003
+version: 0.004

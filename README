@@ -3,7 +3,7 @@ NAME
     transport protocols.
 
 VERSION
-    version 0.003
+    version 0.004
 
 SYNOPSIS
         use JSON::RPC::LWP;

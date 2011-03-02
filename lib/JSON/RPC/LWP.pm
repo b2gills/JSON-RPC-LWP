@@ -1,14 +1,42 @@
 package JSON::RPC::LWP;
 BEGIN {
-  $JSON::RPC::LWP::VERSION = '0.003';
+  $JSON::RPC::LWP::VERSION = '0.004';
 }
 use URI 1.58;
 use LWP::UserAgent;
 use JSON::RPC::Common;
 use JSON::RPC::Common::Marshal::HTTP; # uses Moose
 
+use Moose::Util::TypeConstraints;
+
+subtype 'JSON.RPC.Version'
+  => as 'Str'
+  => where {
+    $_ eq '1.0' ||
+    $_ eq '1.1' ||
+    $_ eq '2.0'
+};
+
+coerce 'JSON.RPC.Version'
+  => from 'Int',
+  => via sub{
+    $_.'.0'
+  }
+;
+
 use namespace::clean;
 use Moose;
+
+my @ua_handles = qw{
+  agent
+  _agent
+  timeout
+  proxy
+  no_proxy
+  env_proxy
+  from
+  credentials
+};
 
 has ua => (
   is => 'rw',
@@ -20,17 +48,14 @@ has ua => (
       parse_head => 0,
     );
   },
-  handles => [qw'
-    agent
-    _agent
-    timeout
-    proxy
-    no_proxy
-    env_proxy
-    from
-    credentials
-  '],
+  handles => \@ua_handles,
 );
+
+my @marshal_handles = qw{
+  prefer_get
+  rest_style_methods
+  prefer_encoded_get
+};
 
 has marshal => (
   is => 'rw',
@@ -38,17 +63,30 @@ has marshal => (
   default => sub{
     JSON::RPC::Common::Marshal::HTTP->new;
   },
-  handles => [qw'
-    prefer_get
-    rest_style_methods
-    prefer_encoded_get
-  '],
+  handles => \@marshal_handles,
 );
+
+my %from = (
+  map( { $_, 'ua' } @ua_handles ),
+  map( { $_, 'marshal' } @marshal_handles ),
+);
+
+sub BUILD{
+  my($self,$args) = @_;
+
+  while( my($key,$value) = each %$args ){
+    if( exists $from{$key} ){
+      my $attr = $from{$key};
+      $self->$attr->$key($value);
+    }
+  }
+}
 
 has count => (
   is => 'ro',
   isa => 'Int',
   default => 0,
+  init_arg => undef,
 );
 sub reset_count{
   $_[0]->{count} = 0;
@@ -56,14 +94,9 @@ sub reset_count{
 
 has version => (
   is => 'rw',
-  isa => 'Num',
+  isa => 'JSON.RPC.Version',
   default => '2.0',
-  # should probably replace this trigger with a subtype
-  trigger => sub{
-    my($self,$new,$old) = @_;
-    $new = 1 if $new < 1;
-    $self->{version} = sprintf '%3.1f', $new;
-  },
+  coerce => 1,
 );
 
 sub call{
@@ -132,7 +165,7 @@ JSON::RPC::LWP - Use any version of JSON RPC over any libwww supported transport
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 SYNOPSIS
 
@@ -245,6 +278,8 @@ B<Methods delegated to C<ua>>
 =back
 
 =back
+
+=for Pod::Coverage BUILD
 
 =head1 AUTHOR
 

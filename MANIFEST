@@ -7,6 +7,7 @@ META.json
 META.yml
 README
 lib/JSON/RPC/LWP.pm
+t/init.t
 t/load.t
 xt/release/eol.t
 xt/release/no-tabs.t
