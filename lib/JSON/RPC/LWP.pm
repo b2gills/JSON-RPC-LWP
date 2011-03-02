@@ -256,4 +256,6 @@ B<Methods delegated to C<ua>>
 
 =back
 
+=for Pod::Coverage BUILD
+
 =cut
