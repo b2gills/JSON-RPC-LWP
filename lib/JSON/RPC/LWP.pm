@@ -7,12 +7,19 @@ use JSON::RPC::Common::Marshal::HTTP; # uses Moose
 use Moose::Util::TypeConstraints;
 
 subtype 'JSON.RPC.Version'
-  => as 'Num'
+  => as 'Str'
   => where {
-    $_ == 1.0 ||
-    $_ == 1.1 ||
-    $_ == 2.0
+    $_ eq '1.0' ||
+    $_ eq '1.1' ||
+    $_ eq '2.0'
 };
+
+coerce 'JSON.RPC.Version'
+  => from 'Int',
+  => via sub{
+    $_.'.0'
+  }
+;
 
 use namespace::clean;
 use Moose;
@@ -86,6 +93,7 @@ has version => (
   is => 'rw',
   isa => 'JSON.RPC.Version',
   default => '2.0',
+  coerce => 1,
 );
 
 sub call{
