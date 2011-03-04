@@ -1,12 +1,11 @@
 use warnings;
 use strict;
 
-use Test::More tests => 7;
+use Test::More tests => 6;
 
 require_ok('JSON::RPC::LWP');
 
 my $rpc = new_ok 'JSON::RPC::LWP';
-is $rpc->count, 0, '->count starts at 0';
 
 use FindBin;
 use File::Spec;

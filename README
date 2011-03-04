@@ -3,7 +3,7 @@ NAME
     transport protocols.
 
 VERSION
-    version 0.004
+    version 0.005
 
 SYNOPSIS
         use JSON::RPC::LWP;
@@ -45,14 +45,57 @@ METHODS
         To check for an error use the "is_error" method of the returned
         response object.
 
-    "count"
-        How many times "call" was called
+ATTRIBUTES
+    "previous_id"
+        Returns the previous id used in the "call()" method.
 
-    "reset_count"
-        Resets "count".
+    "has_previous_id"
+        Returns true if the "previous_id" has any value associated with it.
+
+    "clear_previous_id"
+        Clears the previous id, useful for generators that do something
+        different the first time they are used.
+
+    "id_generator"
+        This is used for generating the next id to be used in the "call()"
+        method.
+
+        The default is just an incrementing subroutine.
+
+        The call-back gets called with 1 or 2 arguments.
+
+        The first is the object which is calling it.
+
+        The secound is the previous id, if the object has one.
+
+        The "previous_id" attribute gets set to the return value of the
+        call-back before the call actually goes through
+
+        The reason for this attribute, is to make it easy to change the
+        order of the id's that get used.
 
     "version"
         The JSON RPC version to use. one of 1.0 1.1 or 2.0
+
+    "agent"
+        Get/set the product token that is used to identify the user agent on
+        the network. The agent value is sent as the "User-Agent" header in
+        the requests. The default is the string returned by the "_agent"
+        attribute (see below).
+
+        If the agent ends with space then the "_agent" string is appended to
+        it.
+
+        The user agent string should be one or more simple product
+        identifiers with an optional version number separated by the "/"
+        character.
+
+        Setting this will also set "ua->agent" and "marshal->user_agent".
+
+    "_agent"
+        Returns the default agent identifier. This is a string of the form
+        "JSON-RPC-LWP/#.###", where "#.###" is substituted with the version
+        number of this library.
 
     "marshal"
         An instance of JSON::RPC::Common::Marshal::HTTP. This is used to
@@ -60,7 +103,7 @@ METHODS
         HTTP::Request, and from an HTTP::Response to a
         JSON::RPC::Common::Procedure::Return.
 
-        Methods delegated to "marshal"
+        Attributes delegated to "marshal"
 
         "prefer_get"
         "rest_style_methods"
@@ -69,10 +112,8 @@ METHODS
     "ua"
         An instance of LWP::UserAgent. This is used for the transport layer.
 
-        Methods delegated to "ua"
+        Attributes delegated to "ua"
 
-        "agent"
-        "_agent"
         "timeout"
         "proxy"
         "no_proxy"

@@ -1,3 +1,11 @@
+0.005     2011-03-04
+
+  - Took over control of agent attribute from ua
+    Now it sets ->ua->agent and ->marshal->user_agent
+  - Added id_generator attribute
+    Now it's possible to control the id's that get used in the call method
+  - Removed count attribute
+
 0.004     2011-03-02
 
   - Improved checking for version attribute

@@ -1,13 +1,17 @@
 package JSON::RPC::LWP;
 BEGIN {
-  $JSON::RPC::LWP::VERSION = '0.004';
+  $JSON::RPC::LWP::VERSION = '0.005';
 }
+use 5.008;
 use URI 1.58;
 use LWP::UserAgent;
 use JSON::RPC::Common;
 use JSON::RPC::Common::Marshal::HTTP; # uses Moose
 
 use Moose::Util::TypeConstraints;
+
+# might as well use it, it gets loaded anyway
+use JSON::RPC::Common::TypeConstraints qw(JSONValue);
 
 subtype 'JSON.RPC.Version'
   => as 'Str'
@@ -27,9 +31,39 @@ coerce 'JSON.RPC.Version'
 use namespace::clean;
 use Moose;
 
+has agent => (
+  is => 'rw',
+  isa => 'Maybe[Str]',
+  default => sub{
+    my($self) = @_;
+    $self->_agent;
+  },
+  trigger => sub{
+    my($self,$agent) = @_;
+    unless( defined $agent ){
+      $agent = $self->_agent;
+    }
+    if( length $agent ){
+      if( substr($agent,-1) eq ' ' ){
+        $agent .= $self->_agent;
+      }
+    }
+    $self->{agent} = $agent;
+    $self->ua->agent($agent);
+    $self->marshal->user_agent($agent);
+  }
+);
+
+{ no strict 'vars';
+has _agent => (
+  is => 'ro',
+  isa => 'Str',
+  default => "JSON-RPC-LWP/$VERSION",
+  init_arg => undef,
+);
+}
+
 my @ua_handles = qw{
-  agent
-  _agent
   timeout
   proxy
   no_proxy
@@ -82,21 +116,33 @@ sub BUILD{
   }
 }
 
-has count => (
-  is => 'ro',
-  isa => 'Int',
-  default => 0,
-  init_arg => undef,
-);
-sub reset_count{
-  $_[0]->{count} = 0;
-}
-
 has version => (
   is => 'rw',
   isa => 'JSON.RPC.Version',
   default => '2.0',
   coerce => 1,
+);
+
+has previous_id => (
+  is => 'ro',
+  isa => JSONValue,
+  init_arg => undef,
+  writer => '_previous_id',
+  predicate => 'has_previous_id',
+  clearer => 'clear_previous_id',
+);
+
+# default id generator is a simple incrementor
+my $default_id_gen = sub{
+  my($self,$prev) = @_;
+  $prev ||= 0;
+  return $prev + 1;
+};
+
+has id_generator => (
+  is => 'rw',
+  isa => 'CodeRef',
+  default => sub{ $default_id_gen },
 );
 
 sub call{
@@ -110,11 +156,20 @@ sub call{
   }else{
     $params = \@rest;
   }
+  $self->{count}++;
+
+  my $next_id;
+  if( $self->has_previous_id ){
+    $next_id = $self->id_generator->($self);
+  }else{
+    $next_id = $self->id_generator->($self,$self->previous_id);
+  }
+  $self->_previous_id($next_id);
 
   my $request = $self->marshal->call_to_request(
     JSON::RPC::Common::Procedure::Call->inflate(
       jsonrpc => $self->version,
-      id      => ++$self->{count},
+      id      => $next_id,
       method  => $method,
       params  => $params,
     ),
@@ -137,6 +192,7 @@ sub notify{
   }else{
     $params = \@rest;
   }
+  $self->{count}++;
 
   my $request = $self->marshal->call_to_request(
     JSON::RPC::Common::Procedure::Call->inflate(
@@ -165,7 +221,7 @@ JSON::RPC::LWP - Use any version of JSON RPC over any libwww supported transport
 
 =head1 VERSION
 
-version 0.004
+version 0.005
 
 =head1 SYNOPSIS
 
@@ -219,17 +275,65 @@ Returns the L<HTTP::Response> from L<C<ua>|LWP::UserAgent>.
 To check for an error use the C<is_error> method of the returned
 response object.
 
-=item C<count>
+=back
 
-How many times C<call> was called
+=head1 ATTRIBUTES
 
-=item C<reset_count>
+=over 4
 
-Resets C<count>.
+=item C<previous_id>
+
+Returns the previous id used in the C<call()> method.
+
+=item C<has_previous_id>
+
+Returns true if the C<previous_id> has any value associated with it.
+
+=item C<clear_previous_id>
+
+Clears the previous id, useful for generators that do something different
+the first time they are used.
+
+=item C<id_generator>
+
+This is used for generating the next id to be used in the C<call()> method.
+
+The default is just an incrementing subroutine.
+
+The call-back gets called with 1 or 2 arguments.
+
+The first is the object which is calling it.
+
+The secound is the previous id, if the object has one.
+
+The C<previous_id> attribute gets set to the return value of the call-back
+B<before> the call actually goes through
+
+The reason for this attribute, is to make it easy to change the order
+of the id's that get used.
 
 =item C<version>
 
 The JSON RPC version to use. one of 1.0 1.1 or 2.0
+
+=item C<agent>
+
+Get/set the product token that is used to identify the user agent on the network.
+The agent value is sent as the "User-Agent" header in the requests.
+The default is the string returned by the C<_agent> attribute (see below).
+
+If the agent ends with space then the C<_agent> string is appended to it.
+
+The user agent string should be one or more simple product identifiers
+with an optional version number separated by the "/" character.
+
+Setting this will also set C<< ua->agent >> and C<< marshal->user_agent >>.
+
+=item C<_agent>
+
+Returns the default agent identifier.
+This is a string of the form "JSON-RPC-LWP/#.###", where "#.###" is
+substituted with the version number of this library.
 
 =item C<marshal>
 
@@ -238,7 +342,7 @@ This is used to convert from a L<JSON::RPC::Common::Procedure::Call>
 to a L<HTTP::Request>,
 and from an L<HTTP::Response> to a L<JSON::RPC::Common::Procedure::Return>.
 
-B<Methods delegated to C<marshal>>
+B<Attributes delegated to C<marshal>>
 
 =over 4
 
@@ -255,13 +359,9 @@ B<Methods delegated to C<marshal>>
 An instance of L<LWP::UserAgent>.
 This is used for the transport layer.
 
-B<Methods delegated to C<ua>>
+B<Attributes delegated to C<ua>>
 
 =over 4
-
-=item C<agent>
-
-=item C<_agent>
 
 =item C<timeout>
 

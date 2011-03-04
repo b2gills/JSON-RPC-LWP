@@ -10,8 +10,7 @@ my %module_build_args = (
     'File::Spec' => '0',
     'FindBin' => '0',
     'Module::Build' => '0.3601',
-    'Test::More' => '0',
-    'Test::Warn' => '0'
+    'Test::More' => '0'
   },
   'configure_requires' => {
     'Module::Build' => '0.3601'
@@ -21,7 +20,7 @@ my %module_build_args = (
     'Brad Gilbert <b2gills@gmail.com>'
   ],
   'dist_name' => 'JSON-RPC-LWP',
-  'dist_version' => '0.004',
+  'dist_version' => '0.005',
   'license' => 'perl',
   'module_name' => 'JSON::RPC::LWP',
   'recommends' => {},
@@ -30,9 +29,9 @@ my %module_build_args = (
     'JSON::RPC::Common' => '0',
     'LWP::UserAgent' => '0',
     'Moose' => '0',
-    'Moose::Util::TypeConstraints' => '0',
     'URI' => '1.58',
-    'namespace::clean' => '0'
+    'namespace::clean' => '0',
+    'perl' => '5.008'
   },
   'script_files' => []
 );
