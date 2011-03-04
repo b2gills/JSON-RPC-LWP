@@ -24,9 +24,39 @@ coerce 'JSON.RPC.Version'
 use namespace::clean;
 use Moose;
 
+has agent => (
+  is => 'rw',
+  isa => 'Maybe[Str]',
+  default => sub{
+    my($self) = @_;
+    $self->_agent;
+  },
+  trigger => sub{
+    my($self,$agent) = @_;
+    unless( defined $agent ){
+      $agent = $self->_agent;
+    }
+    if( length $agent ){
+      if( substr($agent,-1) eq ' ' ){
+        $agent .= $self->_agent;
+      }
+    }
+    $self->{agent} = $agent;
+    $self->ua->agent($agent);
+    $self->marshal->user_agent($agent);
+  }
+);
+
+{ no strict 'vars';
+has _agent => (
+  is => 'ro',
+  isa => 'Str',
+  default => "JSON-RPC-LWP/$VERSION",
+  init_arg => undef,
+);
+}
+
 my @ua_handles = qw{
-  agent
-  _agent
   timeout
   proxy
   no_proxy
@@ -204,6 +234,12 @@ Returns the L<HTTP::Response> from L<C<ua>|LWP::UserAgent>.
 To check for an error use the C<is_error> method of the returned
 response object.
 
+=back
+
+=head2 ATTRIBUTES
+
+=over 4
+
 =item C<count>
 
 How many times C<call> was called
@@ -216,6 +252,25 @@ Resets C<count>.
 
 The JSON RPC version to use. one of 1.0 1.1 or 2.0
 
+=item C<agent>
+
+Get/set the product token that is used to identify the user agent on the network.
+The agent value is sent as the "User-Agent" header in the requests.
+The default is the string returned by the C<_agent> attribute (see below).
+
+If the agent ends with space then the C<_agent> string is appended to it.
+
+The user agent string should be one or more simple product identifiers
+with an optional version number separated by the "/" character.
+
+Setting this will also set C<< ua->agent >> and C<< marshal->user_agent >>.
+
+=item C<_agent>
+
+Returns the default agent identifier.
+This is a string of the form "JSON-RPC-LWP/#.###", where "#.###" is
+substituted with the version number of this library.
+
 =item C<marshal>
 
 An instance of L<JSON::RPC::Common::Marshal::HTTP>.
@@ -223,7 +278,7 @@ This is used to convert from a L<JSON::RPC::Common::Procedure::Call>
 to a L<HTTP::Request>,
 and from an L<HTTP::Response> to a L<JSON::RPC::Common::Procedure::Return>.
 
-B<Methods delegated to C<marshal>>
+B<Attributes delegated to C<marshal>>
 
 =over 4
 
@@ -240,13 +295,9 @@ B<Methods delegated to C<marshal>>
 An instance of L<LWP::UserAgent>.
 This is used for the transport layer.
 
-B<Methods delegated to C<ua>>
+B<Attributes delegated to C<ua>>
 
 =over 4
-
-=item C<agent>
-
-=item C<_agent>
 
 =item C<timeout>
 
