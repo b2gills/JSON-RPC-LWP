@@ -1,4 +1,5 @@
 package JSON::RPC::LWP;
+use 5.008;
 use URI 1.58;
 use LWP::UserAgent;
 use JSON::RPC::Common;
