@@ -112,16 +112,6 @@ sub BUILD{
   }
 }
 
-has count => (
-  is => 'ro',
-  isa => 'Int',
-  default => 0,
-  init_arg => undef,
-);
-sub reset_count{
-  $_[0]->{count} = 0;
-}
-
 has version => (
   is => 'rw',
   isa => 'JSON.RPC.Version',
@@ -274,16 +264,6 @@ response object.
 =head1 ATTRIBUTES
 
 =over 4
-
-=item C<count>
-
-How many times C<call> was called
-
-This may get removed at a later date.
-
-=item C<reset_count>
-
-Resets C<count>.
 
 =item C<previous_id>
 
