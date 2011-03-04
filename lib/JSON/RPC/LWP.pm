@@ -6,6 +6,9 @@ use JSON::RPC::Common::Marshal::HTTP; # uses Moose
 
 use Moose::Util::TypeConstraints;
 
+# might as well use it, it gets loaded anyway
+use JSON::RPC::Common::TypeConstraints qw(JSONValue);
+
 subtype 'JSON.RPC.Version'
   => as 'Str'
   => where {
@@ -126,6 +129,28 @@ has version => (
   coerce => 1,
 );
 
+has previous_id => (
+  is => 'ro',
+  isa => JSONValue,
+  init_arg => undef,
+  writer => '_previous_id',
+  predicate => 'has_previous_id',
+  clearer => 'clear_previous_id',
+);
+
+# default id generator is a simple incrementor
+my $default_id_gen = sub{
+  my($self,$prev) = @_;
+  $prev ||= 0;
+  return $prev + 1;
+};
+
+has id_generator => (
+  is => 'rw',
+  isa => 'CodeRef',
+  default => sub{ $default_id_gen },
+);
+
 sub call{
   my($self,$uri,$method,@rest) = @_;
 
@@ -137,11 +162,20 @@ sub call{
   }else{
     $params = \@rest;
   }
+  $self->{count}++;
+
+  my $next_id;
+  if( $self->has_previous_id ){
+    $next_id = $self->id_generator->($self);
+  }else{
+    $next_id = $self->id_generator->($self,$self->previous_id);
+  }
+  $self->_previous_id($next_id);
 
   my $request = $self->marshal->call_to_request(
     JSON::RPC::Common::Procedure::Call->inflate(
       jsonrpc => $self->version,
-      id      => ++$self->{count},
+      id      => $next_id,
       method  => $method,
       params  => $params,
     ),
@@ -164,6 +198,7 @@ sub notify{
   }else{
     $params = \@rest;
   }
+  $self->{count}++;
 
   my $request = $self->marshal->call_to_request(
     JSON::RPC::Common::Procedure::Call->inflate(
@@ -236,7 +271,7 @@ response object.
 
 =back
 
-=head2 ATTRIBUTES
+=head1 ATTRIBUTES
 
 =over 4
 
@@ -244,9 +279,42 @@ response object.
 
 How many times C<call> was called
 
+This may get removed at a later date.
+
 =item C<reset_count>
 
 Resets C<count>.
+
+=item C<previous_id>
+
+Returns the previous id used in the C<call()> method.
+
+=item C<has_previous_id>
+
+Returns true if the C<previous_id> has any value associated with it.
+
+=item C<clear_previous_id>
+
+Clears the previous id, useful for generators that do something different
+the first time they are used.
+
+=item C<id_generator>
+
+This is used for generating the next id to be used in the C<call()> method.
+
+The default is just an incrementing subroutine.
+
+The call-back gets called with 1 or 2 arguments.
+
+The first is the object which is calling it.
+
+The secound is the previous id, if the object has one.
+
+The C<previous_id> attribute gets set to the return value of the call-back
+B<before> the call actually goes through
+
+The reason for this attribute, is to make it easy to change the order
+of the id's that get used.
 
 =item C<version>
 
