@@ -20,17 +20,15 @@ my @test = (
 
 plan tests => 2 + @test * 2;
 
-subtest '_agent' , sub{
-  plan tests => 1;
+{
   my $rpc = JSON::RPC::LWP->new( _agent => 'anything' );
   is $rpc->_agent,     $default, '_agent is initialized correctly';
-};
+}
 
-subtest 'Defaults', sub{
-  plan tests => 1;
+{
   my $rpc = JSON::RPC::LWP->new;
   is $rpc->agent,      $default, 'Default agent';
-};
+}
 
 for my $test (@test){
   my($init,$full) = @$test;
