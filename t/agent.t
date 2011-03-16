@@ -4,6 +4,8 @@ use strict;
 use Test::More;
 
 use JSON::RPC::LWP;
+my $package = 'JSON::RPC::LWP';
+my $dist    = 'JSON-RPC-LWP';
 my $version = $JSON::RPC::LWP::VERSION;
 my $default = "JSON-RPC-LWP/$version";
 
@@ -15,7 +17,8 @@ my @test = (
   [ ' ', " $default" ],
   [ 'testing ', "testing $default" ],
   [ $default ],
-  [ 'JSON-RPC-LWP' ]
+  [ $package ],
+  [ $dist ],
 );
 
 plan tests => 2 + @test * 2;
