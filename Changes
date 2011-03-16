@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+  - The agent attribute will now be more appropriate for sub-classing modules
+
 0.005     2011-03-04
 
   - Took over control of agent attribute from ua
