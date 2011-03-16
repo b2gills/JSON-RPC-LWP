@@ -35,6 +35,13 @@ plan tests => 2 + @test * 2;
 
 for my $test (@test){
   my($init,$full) = @$test;
+
+  test_on_initialize(    $package, $default, $init, $full );
+  test_after_initialize( $package, $default, $init, $full );
+}
+
+sub test_on_initialize{
+  my( $package, $default, $init, $full ) = @_;
   $full = $init unless defined $full;
 
   my $initquote = defined $init ? qq["$init"] : 'undef';
@@ -44,19 +51,28 @@ for my $test (@test){
     no warnings 'uninitialized';
     plan tests => 3;
 
-    note qq[JSON::RPC::LWP->new( agent => $initquote )];
-    my $rpc = JSON::RPC::LWP->new( agent => $init );
+    note qq[$package->new( agent => $initquote )];
+    my $rpc = $package->new( agent => $init );
 
     is $rpc->agent,       $full, 'rpc->agent';
     is $rpc->ua->agent.'', $full, 'rpc->ua->agent';
     is $rpc->marshal->user_agent, $full, 'rpc->marshal->user_agent';
   };
+}
+
+sub test_after_initialize{
+  my( $package, $default, $init, $full ) = @_;
+  $full = $init unless defined $full;
+
+  my $initquote = defined $init ? qq["$init"] : 'undef';
+  my $fullquote = defined $init ? qq["$full"] : 'undef';
+
   subtest qq[set agent to $initquote after initialization], sub{
     no warnings 'uninitialized';
     plan tests => 4;
 
-    note qq[JSON::RPC::LWP->new()];
-    my $rpc = JSON::RPC::LWP->new();
+    note qq[$package->new()];
+    my $rpc = $package->new();
 
     is $rpc->agent, $default, 'initialized with default';
     note qq[rpc->agent( $initquote ) ];
