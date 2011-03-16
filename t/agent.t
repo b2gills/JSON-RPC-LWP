@@ -48,6 +48,8 @@ sub test_on_initialize{
   my $fullquote = defined $init ? qq["$full"] : 'undef';
 
   subtest qq[initialize agent to $initquote], sub{
+    print "\n";
+    note  qq[initialize agent to $initquote];
     no warnings 'uninitialized';
     plan tests => 3;
 
@@ -68,6 +70,8 @@ sub test_after_initialize{
   my $fullquote = defined $init ? qq["$full"] : 'undef';
 
   subtest qq[set agent to $initquote after initialization], sub{
+    print "\n";
+    note  qq[set agent to $initquote after initialization];
     no warnings 'uninitialized';
     plan tests => 4;
 
