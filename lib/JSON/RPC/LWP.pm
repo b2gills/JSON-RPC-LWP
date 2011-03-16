@@ -51,13 +51,24 @@ has agent => (
   }
 );
 
-{ no strict 'vars';
 has _agent => (
   is => 'ro',
   isa => 'Str',
-  default => "JSON-RPC-LWP/$VERSION",
+  lazy => 1,
+  builder => '_build_agent',
   init_arg => undef,
 );
+sub _build_agent{
+  my($self) = @_;
+  my $class = blessed($self) || $self;
+
+  no strict qw'vars refs';
+  if( $class eq __PACKAGE__ ){
+    return "JSON-RPC-LWP/$VERSION"
+  }else{
+    my $version = ${$class.'::VERSION'};
+    return "$class/$version";
+  }
 }
 
 my @ua_handles = qw{
