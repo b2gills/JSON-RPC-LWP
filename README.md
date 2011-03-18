@@ -4,6 +4,21 @@
 
 Use any version of JSON RPC over any [libwww][] supported transport protocols.
 
+# SYNOPSIS
+
+    use JSON::RPC::LWP;
+
+    my $rpc = JSON::RPC::LWP->new(
+      from  => 'name@address.com',
+      agent => 'Example ',
+    );
+
+    my $login = $rpc->call(
+      'https://us1.lacunaexpanse.com/empire', # uri
+      'login', # service
+      [$empire,$password,$api_key] # JSON container
+    );
+
 # REASONING
 
 [JSON::RPC::Common][] provides a useful API for a version, and transport,
