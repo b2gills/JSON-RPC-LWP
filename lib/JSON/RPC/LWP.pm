@@ -154,8 +154,14 @@ my $default_id_gen = sub{
 
 has id_generator => (
   is => 'rw',
-  isa => 'CodeRef',
+  isa => 'Maybe[CodeRef]',
   default => sub{ $default_id_gen },
+  trigger => sub{
+    my($self,$coderef) = @_;
+    unless( $coderef ){
+      $self->{id_generator} = $default_id_gen;
+    }
+  },
 );
 
 sub call{
