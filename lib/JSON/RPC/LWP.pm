@@ -234,9 +234,10 @@ __PACKAGE__->meta->make_immutable;
 
     use JSON::RPC::LWP;
 
-    my $rpc = JSON::RPC::LWP->new;
-    $rpc->from('name@address.com');
-    $rpc->agent('JSON::RPC::LWP Example');
+    my $rpc = JSON::RPC::LWP->new(
+      from  => 'name@address.com',
+      agent => 'Example ',
+    );
 
     my $login = $rpc->call(
       'https://us1.lacunaexpanse.com/empire', # uri
