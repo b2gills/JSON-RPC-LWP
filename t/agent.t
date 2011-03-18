@@ -21,7 +21,7 @@ my @test = (
   [ $dist ],
 );
 
-plan tests => 3 + @test * 2;
+plan tests => 4 + @test * 2;
 
 {
   my $rpc = JSON::RPC::LWP->new( _agent => 'anything' );
@@ -88,8 +88,9 @@ sub test_after_initialize{
   };
 }
 
-subtest 'sub classing' => sub{
-  note 'sub classing JSON::RPC::LWP';
+subtest 'sub classing with version' => sub{
+  print "\n";
+  note 'sub classing JSON::RPC::LWP with $VERSION';
   {
     package MY::Test;
     our @ISA = 'JSON::RPC::LWP';
@@ -99,6 +100,51 @@ subtest 'sub classing' => sub{
   my $package = 'MY::Test';
   my $version = $MY::Test::VERSION;
   my $init_agent = "$package/$version";
+
+  my @test = (
+    [ undef, $init_agent ],
+    [ 'testing' ],
+    [ '' ],
+    [ ' ', " $init_agent" ],
+    [ 'testing ', "testing $init_agent" ],
+    [ $init_agent ],
+    [ $package ],
+    [ $parent_package ],
+    [ $dist ],
+  );
+
+  plan tests => 4 + @test * 2;
+
+  my $test = new_ok $package;
+  isa_ok $test, $parent_package;
+  is
+    $test->_agent,
+    $init_agent,
+    'the ->_agent attribute is initialized with the new classname';
+  is
+    $test->agent,
+    $init_agent,
+    'the ->agent attribute is initialized with the new classname';
+
+  for my $test (@test){
+    my($init,$full) = @$test;
+
+    test_on_initialize(    $package, $init_agent, $init, $full );
+    test_after_initialize( $package, $init_agent, $init, $full );
+  }
+};
+
+subtest 'sub classing without version' => sub{
+  print "\n";
+  note 'sub classing JSON::RPC::LWP without $VERSION';
+  {
+    package MY::Test::NoVersion;
+    our @ISA = 'JSON::RPC::LWP';
+  }
+  my $parent_package = $package;
+  my $package = 'MY::Test::NoVersion';
+  my $version;
+  my $init_agent = $package;
 
   my @test = (
     [ undef, $init_agent ],
