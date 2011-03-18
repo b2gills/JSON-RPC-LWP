@@ -23,6 +23,8 @@ Use any version of JSON RPC over any [libwww][] supported transport protocols.
 
 [JSON::RPC::Common][] provides a useful API for a version, and transport,
 agnostic JSON remote procedure calls.
+It does not however provide any transport protocol itself.
+Instead we use [LWP::UserAgent][] to handle the transport.
 
 This module aims to provide a simple layer over
 [JSON::RPC::Common][], and [LWP::UserAgent][] to make
