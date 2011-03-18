@@ -68,7 +68,11 @@ sub _build_agent{
     return "JSON-RPC-LWP/$VERSION"
   }else{
     my $version = ${$class.'::VERSION'};
-    return "$class/$version";
+    if( $version ){
+      return "$class/$version";
+    }else{
+      return $class;
+    }
   }
 }
 
