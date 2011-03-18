@@ -44,7 +44,7 @@ This is free software; you can redistribute it and/or modify it under
 the same [terms][license] as the Perl 5 programming language system itself.
 
 [JSON::RPC::Common]: http://search.cpan.org/dist/JSON-RPC-Common
-[LWP::UserAgent]:    http://search.cpan.org/dist/libwww-perl
+[LWP::UserAgent]:    http://search.cpan.org/perldoc/LWP::UserAgent
 [libwww]:            http://search.cpan.org/dist/libwww-perl
 [URI]:               http://search.cpan.org/perldoc/URI
 
