@@ -20,7 +20,7 @@ subtype 'JSON.RPC.Version'
 
 coerce 'JSON.RPC.Version'
   => from 'Int',
-  => via sub{
+  => via {
     $_.'.0'
   }
 ;
@@ -31,6 +31,7 @@ use Moose;
 has agent => (
   is => 'rw',
   isa => 'Maybe[Str]',
+  lazy => 1,
   default => sub{
     my($self) = @_;
     $self->_agent;
@@ -54,7 +55,7 @@ has agent => (
 has _agent => (
   is => 'ro',
   isa => 'Str',
-  lazy => 1,
+  lazy_build => 1,
   builder => '_build_agent',
   init_arg => undef,
 );
