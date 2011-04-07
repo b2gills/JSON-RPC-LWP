@@ -25,7 +25,7 @@ coerce 'JSON.RPC.Version'
   }
 ;
 
-use namespace::clean;
+use namespace::clean 0.20;
 use Moose;
 
 has agent => (

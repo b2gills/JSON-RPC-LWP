@@ -35,6 +35,7 @@ JSON remote procedure calls easy to use.
 - [JSON::RPC::Common][]
 - [LWP::UserAgent][]
 - [URI][] 1.58
+- [namespace::clean][] 0.20
 
 # LICENSE
 
@@ -47,5 +48,6 @@ the same [terms][license] as the Perl 5 programming language system itself.
 [LWP::UserAgent]:    http://search.cpan.org/perldoc/LWP::UserAgent
 [libwww]:            http://search.cpan.org/dist/libwww-perl
 [URI]:               http://search.cpan.org/perldoc/URI
+[namespace::clean]:  http://search.cpan.org/perldoc/namespace::clean
 
 [license]: https://github.com/b2gills/JSON-RPC-LWP/blob/release/LICENSE
