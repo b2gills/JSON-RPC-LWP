@@ -9,6 +9,12 @@ my $dist    = 'JSON-RPC-LWP';
 my $version = $JSON::RPC::LWP::VERSION;
 my $default = "JSON-RPC-LWP/$version";
 
+use File::Spec;
+use FindBin;
+use lib File::Spec->catdir($FindBin::Bin,'lib');
+
+use Util;
+
 # [ $agent_in, $agent_full ],
 my @test = (
   [ undef, $default ],
@@ -21,7 +27,8 @@ my @test = (
   [ $dist ],
 );
 
-plan tests => 4 + @test * 2;
+my $init_count = test_on_initialize_count + test_after_initialize_count;
+plan tests => 4 + @test * $init_count;
 
 {
   my $rpc = JSON::RPC::LWP->new( _agent => 'anything' );
@@ -40,53 +47,6 @@ for my $test (@test){
   test_after_initialize( $package, $default, $init, $full );
 }
 
-sub test_on_initialize{
-  my( $package, $default, $init, $full ) = @_;
-  $full = $init unless defined $full;
-
-  my $initquote = defined $init ? qq["$init"] : 'undef';
-  my $fullquote = defined $init ? qq["$full"] : 'undef';
-
-  subtest qq[initialize agent to $initquote], sub{
-    print "\n";
-    note  qq[initialize agent to $initquote];
-    no warnings 'uninitialized';
-    plan tests => 3;
-
-    note qq[$package->new( agent => $initquote )];
-    my $rpc = $package->new( agent => $init );
-
-    is $rpc->agent,       $full, 'rpc->agent';
-    is $rpc->ua->agent.'', $full, 'rpc->ua->agent';
-    is $rpc->marshal->user_agent, $full, 'rpc->marshal->user_agent';
-  };
-}
-
-sub test_after_initialize{
-  my( $package, $default, $init, $full ) = @_;
-  $full = $init unless defined $full;
-
-  my $initquote = defined $init ? qq["$init"] : 'undef';
-  my $fullquote = defined $init ? qq["$full"] : 'undef';
-
-  subtest qq[set agent to $initquote after initialization], sub{
-    print "\n";
-    note  qq[set agent to $initquote after initialization];
-    no warnings 'uninitialized';
-    plan tests => 4;
-
-    note qq[$package->new()];
-    my $rpc = $package->new();
-
-    is $rpc->agent, $default, 'initialized with default';
-    note qq[rpc->agent( $initquote ) ];
-    $rpc->agent($init);
-
-    is $rpc->agent,        $full, 'rpc->agent';
-    is $rpc->ua->agent.'', $full, 'rpc->ua->agent';
-    is $rpc->marshal->user_agent, $full, 'rpc->marshal->user_agent';
-  };
-}
 
 subtest 'sub classing with version' => sub{
   print "\n";
@@ -113,7 +73,7 @@ subtest 'sub classing with version' => sub{
     [ $dist ],
   );
 
-  plan tests => 4 + @test * 2;
+  plan tests => 4 + @test * $init_count;
 
   my $test = new_ok $package;
   isa_ok $test, $parent_package;
@@ -158,7 +118,7 @@ subtest 'sub classing without version' => sub{
     [ $dist ],
   );
 
-  plan tests => 4 + @test * 2;
+  plan tests => 4 + @test * $init_count;
 
   my $test = new_ok $package;
   isa_ok $test, $parent_package;
