@@ -4,8 +4,16 @@ use strict;
 use Test::More;
 
 use JSON::RPC::LWP;
+my $package = 'JSON::RPC::LWP';
+my $dist    = 'JSON-RPC-LWP';
 my $version = $JSON::RPC::LWP::VERSION;
 my $default = "JSON-RPC-LWP/$version";
+
+use File::Spec;
+use FindBin;
+use lib File::Spec->catdir($FindBin::Bin,'lib');
+
+use Util;
 
 # [ $agent_in, $agent_full ],
 my @test = (
@@ -15,54 +23,26 @@ my @test = (
   [ ' ', " $default" ],
   [ 'testing ', "testing $default" ],
   [ $default ],
-  [ 'JSON-RPC-LWP' ]
+  [ $package ],
+  [ $dist ],
 );
 
-plan tests => 2 + @test * 2;
+my $init_count = test_on_initialize_count + test_after_initialize_count;
+plan tests => 2 + @test * $init_count;
 
-subtest '_agent' , sub{
-  plan tests => 1;
+{
   my $rpc = JSON::RPC::LWP->new( _agent => 'anything' );
   is $rpc->_agent,     $default, '_agent is initialized correctly';
-};
+}
 
-subtest 'Defaults', sub{
-  plan tests => 1;
+{
   my $rpc = JSON::RPC::LWP->new;
   is $rpc->agent,      $default, 'Default agent';
-};
+}
 
 for my $test (@test){
   my($init,$full) = @$test;
-  $full = $init unless defined $full;
 
-  my $initquote = defined $init ? qq["$init"] : 'undef';
-  my $fullquote = defined $init ? qq["$full"] : 'undef';
-
-  subtest qq[initialize agent to $initquote], sub{
-    no warnings 'uninitialized';
-    plan tests => 3;
-
-    note qq[JSON::RPC::LWP->new( agent => $initquote )];
-    my $rpc = JSON::RPC::LWP->new( agent => $init );
-
-    is $rpc->agent,       $full, 'rpc->agent';
-    is $rpc->ua->agent.'', $full, 'rpc->ua->agent';
-    is $rpc->marshal->user_agent, $full, 'rpc->marshal->user_agent';
-  };
-  subtest qq[set agent to $initquote after initialization], sub{
-    no warnings 'uninitialized';
-    plan tests => 4;
-
-    note qq[JSON::RPC::LWP->new()];
-    my $rpc = JSON::RPC::LWP->new();
-
-    is $rpc->agent, $default, 'initialized with default';
-    note qq[rpc->agent( $initquote ) ];
-    $rpc->agent($init);
-
-    is $rpc->agent,        $full, 'rpc->agent';
-    is $rpc->ua->agent.'', $full, 'rpc->ua->agent';
-    is $rpc->marshal->user_agent, $full, 'rpc->marshal->user_agent';
-  };
+  test_on_initialize(    $package, $default, $init, $full );
+  test_after_initialize( $package, $default, $init, $full );
 }

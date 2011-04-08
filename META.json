@@ -4,7 +4,7 @@
       "Brad Gilbert <b2gills@gmail.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.200004, CPAN::Meta::Converter version 2.110580",
+   "generated_by" : "Dist::Zilla version 4.200004, CPAN::Meta::Converter version 2.110930",
    "license" : [
       "perl_5"
    ],
@@ -36,22 +36,24 @@
             "LWP::UserAgent" : 0,
             "Moose" : 0,
             "URI" : "1.58",
-            "namespace::clean" : 0,
+            "namespace::clean" : "0.20",
             "perl" : "5.008"
          }
       },
       "test" : {
          "requires" : {
+            "Exporter" : 0,
             "File::Spec" : 0,
             "FindBin" : 0,
-            "Test::More" : 0
+            "Test::More" : 0,
+            "constant" : 0
          }
       }
    },
    "provides" : {
       "JSON::RPC::LWP" : {
          "file" : "lib/JSON/RPC/LWP.pm",
-         "version" : "0.005"
+         "version" : "0.006"
       }
    },
    "release_status" : "stable",
@@ -65,6 +67,6 @@
          "web" : "http://github.com/b2gills/JSON-RPC-LWP"
       }
    },
-   "version" : "0.005"
+   "version" : "0.006"
 }
 

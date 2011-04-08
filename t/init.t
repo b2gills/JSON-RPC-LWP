@@ -1,12 +1,13 @@
 use warnings;
 use strict;
 
-use Test::More tests => 3;
+use Test::More tests => 3 + 3 + 6;
 
 use JSON::RPC::LWP;
 
-subtest q[setting 'from' during object creation], sub{
-  plan tests => 3;
+note q[setting 'from' during object creation];
+{
+  # 3
   my $email = 'user@example.com';
   my $rpc = new_ok(
     'JSON::RPC::LWP',
@@ -15,10 +16,11 @@ subtest q[setting 'from' during object creation], sub{
 
   is $rpc->from, $email, q['from' attribute set];
   is $rpc->ua->from, $email, q['ua->from' has the same value];
-};
+}
 
-subtest q[setting 'prefer_get' during object creation], sub{
-  plan tests => 3;
+note q[setting 'prefer_get' during object creation];
+{
+  # 3
   my $rpc = new_ok(
     'JSON::RPC::LWP',
     [ prefer_get => 1 ],
@@ -34,8 +36,9 @@ sub type_constraint_error{
   $error =~ /does not pass the type constraint/;
 }
 
-subtest q[Setting 'version' attribute], sub{
-  plan tests => 6;
+note q[Setting 'version' attribute];
+{
+  # 6
 
   my $rpc = new_ok(
     'JSON::RPC::LWP',

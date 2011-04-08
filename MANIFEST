@@ -8,7 +8,9 @@ META.yml
 README
 lib/JSON/RPC/LWP.pm
 t/agent.t
+t/agent_subclass.t
 t/init.t
+t/lib/Util.pm
 t/load.t
 xt/release/eol.t
 xt/release/no-tabs.t

@@ -1,3 +1,10 @@
+0.006     2011-04-08
+
+  - The agent attribute will now be more appropriate for sub-classing modules
+  - Allow user to reset the id_generator to the original
+  - Require namespace::clean v0.20
+  - Flattened all tests ( no subtests )
+
 0.005     2011-03-04
 
   - Took over control of agent attribute from ua

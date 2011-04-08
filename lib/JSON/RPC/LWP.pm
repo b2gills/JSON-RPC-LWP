@@ -1,6 +1,6 @@
 package JSON::RPC::LWP;
 BEGIN {
-  $JSON::RPC::LWP::VERSION = '0.005';
+  $JSON::RPC::LWP::VERSION = '0.006';
 }
 use 5.008;
 use URI 1.58;
@@ -23,17 +23,18 @@ subtype 'JSON.RPC.Version'
 
 coerce 'JSON.RPC.Version'
   => from 'Int',
-  => via sub{
+  => via {
     $_.'.0'
   }
 ;
 
-use namespace::clean;
+use namespace::clean 0.20;
 use Moose;
 
 has agent => (
   is => 'rw',
   isa => 'Maybe[Str]',
+  lazy => 1,
   default => sub{
     my($self) = @_;
     $self->_agent;
@@ -54,13 +55,28 @@ has agent => (
   }
 );
 
-{ no strict 'vars';
 has _agent => (
   is => 'ro',
   isa => 'Str',
-  default => "JSON-RPC-LWP/$VERSION",
+  lazy_build => 1,
+  builder => '_build_agent',
   init_arg => undef,
 );
+sub _build_agent{
+  my($self) = @_;
+  my $class = blessed($self) || $self;
+
+  no strict qw'vars refs';
+  if( $class eq __PACKAGE__ ){
+    return "JSON-RPC-LWP/$VERSION"
+  }else{
+    my $version = ${$class.'::VERSION'};
+    if( $version ){
+      return "$class/$version";
+    }else{
+      return $class;
+    }
+  }
 }
 
 my @ua_handles = qw{
@@ -141,8 +157,14 @@ my $default_id_gen = sub{
 
 has id_generator => (
   is => 'rw',
-  isa => 'CodeRef',
+  isa => 'Maybe[CodeRef]',
   default => sub{ $default_id_gen },
+  trigger => sub{
+    my($self,$coderef) = @_;
+    unless( $coderef ){
+      $self->{id_generator} = $default_id_gen;
+    }
+  },
 );
 
 sub call{
@@ -221,15 +243,16 @@ JSON::RPC::LWP - Use any version of JSON RPC over any libwww supported transport
 
 =head1 VERSION
 
-version 0.005
+version 0.006
 
 =head1 SYNOPSIS
 
     use JSON::RPC::LWP;
 
-    my $rpc = JSON::RPC::LWP->new;
-    $rpc->from('name@address.com');
-    $rpc->agent('JSON::RPC::LWP Example');
+    my $rpc = JSON::RPC::LWP->new(
+      from  => 'name@address.com',
+      agent => 'Example ',
+    );
 
     my $login = $rpc->call(
       'https://us1.lacunaexpanse.com/empire', # uri
