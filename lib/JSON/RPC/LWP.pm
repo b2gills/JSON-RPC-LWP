@@ -263,6 +263,8 @@ Uses L<LWP::UserAgent> for transport.
 
 Then returns a L<JSON::RPC::Common::Procedure::Return>
 
+To check for an error use the C<has_error> method of the returned object.
+
 =item C<< notify( $uri, $method ) >>
 
 =item C<< notify( $uri, $method, {...} ) >>
