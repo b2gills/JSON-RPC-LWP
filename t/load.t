@@ -1,8 +1,9 @@
 use warnings;
 use strict;
 
-use Test::More tests => 6;
+use Test::More tests => 7;
 
+use_ok('URI',1.56);
 require_ok('JSON::RPC::LWP');
 
 my $rpc = new_ok 'JSON::RPC::LWP';
