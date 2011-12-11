@@ -47,15 +47,14 @@ has agent => (
       }
     }
     $self->{agent} = $agent;
-    $self->ua->agent($agent);
-    $self->marshal->user_agent($agent);
+    $self->ua->agent($agent) if $self->has_ua;
+    $self->marshal->user_agent($agent) if $self->has_marshal;
   }
 );
 
 has _agent => (
   is => 'ro',
   isa => 'Str',
-  lazy_build => 1,
   builder => '_build_agent',
   init_arg => undef,
 );
@@ -88,11 +87,15 @@ my @ua_handles = qw{
 has ua => (
   is => 'rw',
   isa => 'LWP::UserAgent',
+  lazy => 1,
+  predicate => 'has_ua',
   default => sub{
+    my($self) = @_;
     my $lwp = LWP::UserAgent->new(
       env_proxy => 1,
       keep_alive => 1,
       parse_head => 0,
+      agent => $self->agent,
     );
   },
   handles => \@ua_handles,
@@ -107,8 +110,13 @@ my @marshal_handles = qw{
 has marshal => (
   is => 'rw',
   isa => 'JSON::RPC::Common::Marshal::HTTP',
+  lazy => 1,
+  predicate => 'has_marshal',
   default => sub{
-    JSON::RPC::Common::Marshal::HTTP->new;
+    my($self) = @_;
+    JSON::RPC::Common::Marshal::HTTP->new(
+      user_agent => $self->agent,
+    );
   },
   handles => \@marshal_handles,
 );
