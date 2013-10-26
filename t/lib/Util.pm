@@ -24,7 +24,7 @@ sub test_on_initialize{
   no warnings 'uninitialized';
 
   note qq[$package->new( agent => $initquote )];
-  my $rpc = $package->new( agent => $init );
+  my $rpc = $package->new( (agent => $init) x defined $init );
 
   is $rpc->agent,       $full, 'rpc->agent';
   is $rpc->ua->agent.'', $full, 'rpc->ua->agent';
@@ -46,8 +46,13 @@ sub test_after_initialize{
   my $rpc = $package->new();
 
   is $rpc->agent, $default, 'initialized with default';
-  note qq[rpc->agent( $initquote ) ];
-  $rpc->agent($init);
+  if( defined $init ){
+    note qq[rpc->agent( $initquote )];
+    $rpc->agent($init);
+  }else{
+    note qq[rpc->clear_agent()];
+    $rpc->clear_agent;
+  }
 
   is $rpc->agent,        $full, 'rpc->agent';
   is $rpc->ua->agent.'', $full, 'rpc->ua->agent';

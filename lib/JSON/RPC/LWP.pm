@@ -30,8 +30,9 @@ use Moose;
 
 has agent => (
   is => 'rw',
-  isa => 'Maybe[Str]',
+  isa => 'Str',
   lazy => 1,
+  clearer => 'clear_agent',
   default => sub{
     my($self) = @_;
     $self->_agent;
