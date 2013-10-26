@@ -154,23 +154,10 @@ has previous_id => (
   clearer => 'clear_previous_id',
 );
 
-# default id generator is a simple incrementor
-my $default_id_gen = sub{
-  my($self,$prev) = @_;
-  $prev ||= 0;
-  return $prev + 1;
-};
-
 has id_generator => (
   is => 'rw',
   isa => 'Maybe[CodeRef]',
-  default => sub{ $default_id_gen },
-  trigger => sub{
-    my($self,$coderef) = @_;
-    unless( $coderef ){
-      $self->{id_generator} = $default_id_gen;
-    }
-  },
+  default => undef,
 );
 
 sub call{
