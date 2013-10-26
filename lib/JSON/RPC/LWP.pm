@@ -284,34 +284,25 @@ response object.
 
 =item C<previous_id>
 
-Returns the previous id used in the C<call()> method.
+This attribute is deprecated, and will always return C<1> immediately
+after a call.
 
 =item C<has_previous_id>
 
 Returns true if the C<previous_id> has any value associated with it.
 
+This method is deprecated.
+
 =item C<clear_previous_id>
+
+This method is deprecated.
 
 Clears the previous id, useful for generators that do something different
 the first time they are used.
 
 =item C<id_generator>
 
-This is used for generating the next id to be used in the C<call()> method.
-
-The default is just an incrementing subroutine.
-
-The call-back gets called with 1 or 2 arguments.
-
-The first is the object which is calling it.
-
-The secound is the previous id, if the object has one.
-
-The C<previous_id> attribute gets set to the return value of the call-back
-B<before> the call actually goes through
-
-The reason for this attribute, is to make it easy to change the order
-of the id's that get used.
+This attribute is deprecated, and is no longer used.
 
 =item C<version>
 
