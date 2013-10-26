@@ -186,12 +186,7 @@ sub call{
   }
   $self->{count}++;
 
-  my $next_id;
-  if( $self->has_previous_id ){
-    $next_id = $self->id_generator->($self);
-  }else{
-    $next_id = $self->id_generator->($self,$self->previous_id);
-  }
+  my $next_id = 1;
   $self->_previous_id($next_id);
 
   my $request = $self->marshal->call_to_request(
