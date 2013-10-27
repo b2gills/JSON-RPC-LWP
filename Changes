@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+  - Removed the 'id_generator' functionality
+  - Delay creating 'ua' and 'marshal' objects
+  - Changed agent attribute from 'Maybe[Str]' to 'Str'
+
 0.006     2011-04-08
 
   - The agent attribute will now be more appropriate for sub-classing modules
