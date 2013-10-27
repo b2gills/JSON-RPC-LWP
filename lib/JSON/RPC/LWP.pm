@@ -37,8 +37,11 @@ has agent => (
     my($self) = @_;
     $self->_agent;
   },
-  trigger => sub{
-    my($self,$agent) = @_;
+);
+around 'agent', sub{
+    my($orig,$self,$agent) = @_;
+    $agent = $self->$orig() unless @_ > 2;
+
     unless( defined $agent ){
       $agent = $self->_agent;
     }
@@ -47,11 +50,10 @@ has agent => (
         $agent .= $self->_agent;
       }
     }
-    $self->{agent} = $agent;
     $self->ua->agent($agent) if $self->has_ua;
     $self->marshal->user_agent($agent) if $self->has_marshal;
-  }
-);
+    $self->$orig($agent);
+};
 
 has _agent => (
   is => 'ro',

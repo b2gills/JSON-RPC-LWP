@@ -46,13 +46,8 @@ sub test_after_initialize{
   my $rpc = $package->new();
 
   is $rpc->agent, $default, 'initialized with default';
-  if( defined $init ){
-    note qq[rpc->agent( $initquote )];
-    $rpc->agent($init);
-  }else{
-    note qq[rpc->clear_agent()];
-    $rpc->clear_agent;
-  }
+  note qq[rpc->agent( $initquote )];
+  $rpc->agent($init);
 
   is $rpc->agent,        $full, 'rpc->agent';
   is $rpc->ua->agent.'', $full, 'rpc->ua->agent';
