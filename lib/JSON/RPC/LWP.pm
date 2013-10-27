@@ -304,6 +304,22 @@ the first time they are used.
 
 This attribute is deprecated, and is no longer used.
 
+If you modified it in a subclass:
+
+    has '+id_generator' => (
+      default => sub{sub{1}},
+    );
+
+You should change it to only be modified on older versions of this
+module.
+
+    unless( eval{ JSON::RPC::LWP->VERSION(0.007); 1 } ){
+      # was always called with ( id => "1" )
+      has '+id_generator' => (
+        default => sub{sub{1}},
+      );
+    }
+
 =item C<version>
 
 The JSON RPC version to use. one of 1.0 1.1 or 2.0
