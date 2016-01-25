@@ -166,6 +166,10 @@ has id_generator => (
   default => undef,
 );
 
+with "MooseX::Deprecated" => {
+  attributes => [ qw" id_generator previous_id " ],
+};
+
 sub call{
   my($self,$uri,$method,@rest) = @_;
 
@@ -180,7 +184,10 @@ sub call{
   $self->{count}++;
 
   my $next_id = 1;
-  $self->_previous_id($next_id);
+  eval {
+    $self->{previous_id} = $next_id;
+    # $self->_previous_id($next_id);
+  };
 
   my $request = $self->marshal->call_to_request(
     JSON::RPC::Common::Procedure::Call->inflate(
