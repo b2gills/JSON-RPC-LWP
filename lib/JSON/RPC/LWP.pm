@@ -333,6 +333,8 @@ module.
       );
     }
 
+If anyone was actually relying on this feature it might get added back in.
+
 =item C<version>
 
 The JSON RPC version to use. one of 1.0 1.1 or 2.0
