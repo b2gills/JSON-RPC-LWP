@@ -1,6 +1,7 @@
 package JSON::RPC::LWP;
-BEGIN {
-  $JSON::RPC::LWP::VERSION = '0.006';
+BEGIN{
+  our $AUTHORITY = 'cpan:BGILLS'; # AUTHORITY
+  our $VERSION = '0.007'; # VERSION
 }
 use 5.008;
 use URI 1.58;
@@ -33,14 +34,18 @@ use Moose;
 
 has agent => (
   is => 'rw',
-  isa => 'Maybe[Str]',
+  isa => 'Str',
   lazy => 1,
+  clearer => 'clear_agent',
   default => sub{
     my($self) = @_;
     $self->_agent;
   },
-  trigger => sub{
-    my($self,$agent) = @_;
+);
+around 'agent', sub{
+    my($orig,$self,$agent) = @_;
+    $agent = $self->$orig() unless @_ > 2;
+
     unless( defined $agent ){
       $agent = $self->_agent;
     }
@@ -49,16 +54,14 @@ has agent => (
         $agent .= $self->_agent;
       }
     }
-    $self->{agent} = $agent;
-    $self->ua->agent($agent);
-    $self->marshal->user_agent($agent);
-  }
-);
+    $self->ua->agent($agent) if $self->has_ua;
+    $self->marshal->user_agent($agent) if $self->has_marshal;
+    $self->$orig($agent);
+};
 
 has _agent => (
   is => 'ro',
   isa => 'Str',
-  lazy_build => 1,
   builder => '_build_agent',
   init_arg => undef,
 );
@@ -91,11 +94,15 @@ my @ua_handles = qw{
 has ua => (
   is => 'rw',
   isa => 'LWP::UserAgent',
+  lazy => 1,
+  predicate => 'has_ua',
   default => sub{
+    my($self) = @_;
     my $lwp = LWP::UserAgent->new(
       env_proxy => 1,
       keep_alive => 1,
       parse_head => 0,
+      agent => $self->agent,
     );
   },
   handles => \@ua_handles,
@@ -110,8 +117,13 @@ my @marshal_handles = qw{
 has marshal => (
   is => 'rw',
   isa => 'JSON::RPC::Common::Marshal::HTTP',
+  lazy => 1,
+  predicate => 'has_marshal',
   default => sub{
-    JSON::RPC::Common::Marshal::HTTP->new;
+    my($self) = @_;
+    JSON::RPC::Common::Marshal::HTTP->new(
+      user_agent => $self->agent,
+    );
   },
   handles => \@marshal_handles,
 );
@@ -148,24 +160,15 @@ has previous_id => (
   clearer => 'clear_previous_id',
 );
 
-# default id generator is a simple incrementor
-my $default_id_gen = sub{
-  my($self,$prev) = @_;
-  $prev ||= 0;
-  return $prev + 1;
-};
-
 has id_generator => (
   is => 'rw',
   isa => 'Maybe[CodeRef]',
-  default => sub{ $default_id_gen },
-  trigger => sub{
-    my($self,$coderef) = @_;
-    unless( $coderef ){
-      $self->{id_generator} = $default_id_gen;
-    }
-  },
+  default => undef,
 );
+
+with "MooseX::Deprecated" => {
+  attributes => [ qw" id_generator previous_id " ],
+};
 
 sub call{
   my($self,$uri,$method,@rest) = @_;
@@ -180,13 +183,11 @@ sub call{
   }
   $self->{count}++;
 
-  my $next_id;
-  if( $self->has_previous_id ){
-    $next_id = $self->id_generator->($self);
-  }else{
-    $next_id = $self->id_generator->($self,$self->previous_id);
-  }
-  $self->_previous_id($next_id);
+  my $next_id = 1;
+  eval {
+    $self->{previous_id} = $next_id;
+    # $self->_previous_id($next_id);
+  };
 
   my $request = $self->marshal->call_to_request(
     JSON::RPC::Common::Procedure::Call->inflate(
@@ -235,7 +236,10 @@ __PACKAGE__->meta->make_immutable;
 #ABSTRACT: Use any version of JSON RPC over any libwww supported transport protocols.
 
 __END__
+
 =pod
+
+=encoding UTF-8
 
 =head1 NAME
 
@@ -243,7 +247,7 @@ JSON::RPC::LWP - Use any version of JSON RPC over any libwww supported transport
 
 =head1 VERSION
 
-version 0.006
+version 0.007
 
 =head1 SYNOPSIS
 
@@ -278,6 +282,8 @@ Uses L<LWP::UserAgent> for transport.
 
 Then returns a L<JSON::RPC::Common::Procedure::Return>
 
+To check for an error use the C<has_error> method of the returned object.
+
 =item C<< notify( $uri, $method ) >>
 
 =item C<< notify( $uri, $method, {...} ) >>
@@ -306,34 +312,43 @@ response object.
 
 =item C<previous_id>
 
-Returns the previous id used in the C<call()> method.
+This attribute is deprecated, and will always return C<1> immediately
+after a call.
 
 =item C<has_previous_id>
 
 Returns true if the C<previous_id> has any value associated with it.
 
+This method is deprecated.
+
 =item C<clear_previous_id>
+
+This method is deprecated.
 
 Clears the previous id, useful for generators that do something different
 the first time they are used.
 
 =item C<id_generator>
 
-This is used for generating the next id to be used in the C<call()> method.
+This attribute is deprecated, and is no longer used.
 
-The default is just an incrementing subroutine.
+If you modified it in a subclass:
 
-The call-back gets called with 1 or 2 arguments.
+    has '+id_generator' => (
+      default => sub{sub{1}},
+    );
 
-The first is the object which is calling it.
+You should change it to only be modified on older versions of this
+module.
 
-The secound is the previous id, if the object has one.
+    unless( eval{ JSON::RPC::LWP->VERSION(0.007); 1 } ){
+      # was always called with ( id => "1" )
+      has '+id_generator' => (
+        default => sub{sub{1}},
+      );
+    }
 
-The C<previous_id> attribute gets set to the return value of the call-back
-B<before> the call actually goes through
-
-The reason for this attribute, is to make it easy to change the order
-of the id's that get used.
+If anyone was actually relying on this feature it might get added back in.
 
 =item C<version>
 
@@ -416,4 +431,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

@@ -1,18 +1,12 @@
-NAME
-    JSON::RPC::LWP - Use any version of JSON RPC over any libwww supported
-    transport protocols.
-
-VERSION
-    version 0.006
-
 SYNOPSIS
-        use JSON::RPC::LWP;
 
+        use JSON::RPC::LWP;
+    
         my $rpc = JSON::RPC::LWP->new(
           from  => 'name@address.com',
           agent => 'Example ',
         );
-
+    
         my $login = $rpc->call(
           'https://us1.lacunaexpanse.com/empire', # uri
           'login', # service
@@ -20,114 +14,142 @@ SYNOPSIS
         );
 
 METHODS
-    "call( $uri, $method )"
-    "call( $uri, $method, {...} )"
-    "call( $uri, $method, [...] )"
-    "call( $uri, $method, param1, param2, ... )"
-        Initiate a JSON::RPC::Common::Procedure::Call
 
-        Uses LWP::UserAgent for transport.
+    call( $uri, $method )
 
-        Then returns a JSON::RPC::Common::Procedure::Return
+    call( $uri, $method, {...} )
 
-    "notify( $uri, $method )"
-    "notify( $uri, $method, {...} )"
-    "notify( $uri, $method, [...] )"
-    "notify( $uri, $method, param1, param2, ... )"
-        Initiate a JSON::RPC::Common::Procedure::Call
+    call( $uri, $method, [...] )
 
-        Uses LWP::UserAgent for transport.
+    call( $uri, $method, param1, param2, ... )
 
-        Basically this is the same as a call, except without the "id" key,
-        and doesn't expect a JSON RPC result.
+      Initiate a JSON::RPC::Common::Procedure::Call
 
-        Returns the HTTP::Response from "ua".
+      Uses LWP::UserAgent for transport.
 
-        To check for an error use the "is_error" method of the returned
-        response object.
+      Then returns a JSON::RPC::Common::Procedure::Return
+
+      To check for an error use the has_error method of the returned
+      object.
+
+    notify( $uri, $method )
+
+    notify( $uri, $method, {...} )
+
+    notify( $uri, $method, [...] )
+
+    notify( $uri, $method, param1, param2, ... )
+
+      Initiate a JSON::RPC::Common::Procedure::Call
+
+      Uses LWP::UserAgent for transport.
+
+      Basically this is the same as a call, except without the id key, and
+      doesn't expect a JSON RPC result.
+
+      Returns the HTTP::Response from ua.
+
+      To check for an error use the is_error method of the returned
+      response object.
 
 ATTRIBUTES
-    "previous_id"
-        Returns the previous id used in the "call()" method.
 
-    "has_previous_id"
-        Returns true if the "previous_id" has any value associated with it.
+    previous_id
 
-    "clear_previous_id"
-        Clears the previous id, useful for generators that do something
-        different the first time they are used.
+      This attribute is deprecated, and will always return 1 immediately
+      after a call.
 
-    "id_generator"
-        This is used for generating the next id to be used in the "call()"
-        method.
+    has_previous_id
 
-        The default is just an incrementing subroutine.
+      Returns true if the previous_id has any value associated with it.
 
-        The call-back gets called with 1 or 2 arguments.
+      This method is deprecated.
 
-        The first is the object which is calling it.
+    clear_previous_id
 
-        The secound is the previous id, if the object has one.
+      This method is deprecated.
 
-        The "previous_id" attribute gets set to the return value of the
-        call-back before the call actually goes through
+      Clears the previous id, useful for generators that do something
+      different the first time they are used.
 
-        The reason for this attribute, is to make it easy to change the
-        order of the id's that get used.
+    id_generator
 
-    "version"
-        The JSON RPC version to use. one of 1.0 1.1 or 2.0
+      This attribute is deprecated, and is no longer used.
 
-    "agent"
-        Get/set the product token that is used to identify the user agent on
-        the network. The agent value is sent as the "User-Agent" header in
-        the requests. The default is the string returned by the "_agent"
-        attribute (see below).
+      If you modified it in a subclass:
 
-        If the agent ends with space then the "_agent" string is appended to
-        it.
+          has '+id_generator' => (
+            default => sub{sub{1}},
+          );
 
-        The user agent string should be one or more simple product
-        identifiers with an optional version number separated by the "/"
-        character.
+      You should change it to only be modified on older versions of this
+      module.
 
-        Setting this will also set "ua->agent" and "marshal->user_agent".
+          unless( eval{ JSON::RPC::LWP->VERSION(0.007); 1 } ){
+            # was always called with ( id => "1" )
+            has '+id_generator' => (
+              default => sub{sub{1}},
+            );
+          }
 
-    "_agent"
-        Returns the default agent identifier. This is a string of the form
-        "JSON-RPC-LWP/#.###", where "#.###" is substituted with the version
-        number of this library.
+      If anyone was actually relying on this feature it might get added
+      back in.
 
-    "marshal"
-        An instance of JSON::RPC::Common::Marshal::HTTP. This is used to
-        convert from a JSON::RPC::Common::Procedure::Call to a
-        HTTP::Request, and from an HTTP::Response to a
-        JSON::RPC::Common::Procedure::Return.
+    version
 
-        Attributes delegated to "marshal"
+      The JSON RPC version to use. one of 1.0 1.1 or 2.0
 
-        "prefer_get"
-        "rest_style_methods"
-        "prefer_encoded_get"
+    agent
 
-    "ua"
-        An instance of LWP::UserAgent. This is used for the transport layer.
+      Get/set the product token that is used to identify the user agent on
+      the network. The agent value is sent as the "User-Agent" header in
+      the requests. The default is the string returned by the _agent
+      attribute (see below).
 
-        Attributes delegated to "ua"
+      If the agent ends with space then the _agent string is appended to
+      it.
 
-        "timeout"
-        "proxy"
-        "no_proxy"
-        "env_proxy"
-        "from"
-        "credentials"
+      The user agent string should be one or more simple product
+      identifiers with an optional version number separated by the "/"
+      character.
 
-AUTHOR
-    Brad Gilbert <b2gills@gmail.com>
+      Setting this will also set ua->agent and marshal->user_agent.
 
-COPYRIGHT AND LICENSE
-    This software is copyright (c) 2011 by Brad Gilbert.
+    _agent
 
-    This is free software; you can redistribute it and/or modify it under
-    the same terms as the Perl 5 programming language system itself.
+      Returns the default agent identifier. This is a string of the form
+      "JSON-RPC-LWP/#.###", where "#.###" is substituted with the version
+      number of this library.
+
+    marshal
+
+      An instance of JSON::RPC::Common::Marshal::HTTP. This is used to
+      convert from a JSON::RPC::Common::Procedure::Call to a HTTP::Request,
+      and from an HTTP::Response to a JSON::RPC::Common::Procedure::Return.
+
+      Attributes delegated to marshal
+
+      prefer_get
+
+      rest_style_methods
+
+      prefer_encoded_get
+
+    ua
+
+      An instance of LWP::UserAgent. This is used for the transport layer.
+
+      Attributes delegated to ua
+
+      timeout
+
+      proxy
+
+      no_proxy
+
+      env_proxy
+
+      from
+
+      credentials
 
